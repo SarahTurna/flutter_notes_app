@@ -17,7 +17,7 @@ Get
 GoRouter
 Installation
 Clone the repository
-git clone https://github.com/your-repository/flutter_notes_app.git
+git clone (https://github.com/SarahTurna/flutter_notes_app.git)
 
 
 ## Install dependencies
