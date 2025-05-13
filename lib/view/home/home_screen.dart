@@ -4,19 +4,18 @@ import 'package:flutter_notes_app/widgets/note_card_widget.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-
 
 class HomeScreen extends StatelessWidget {
   final NotesController notesController = Get.put(NotesController());
 
-  HomeScreen({super.key});
+  HomeScreen({super.key}) {
+    notesController.fetchNotes();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212), // Dark background
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: Text(
           'Notes',
@@ -30,12 +29,21 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            //three dots
             icon: const Icon(Icons.more_vert, color: Colors.white),
             onPressed: () {
-              //show a modal with settings.
+              showMenu(
+                context: context,
+                position: RelativeRect.fromLTRB(100, 50, 0, 0),
+                items: [
+                  PopupMenuItem(value: 'logout', child: const Text('Logout')),
+                ],
+              ).then((value) {
+                if (value == 'logout') {
+                  notesController.signOut(context);
+                }
+              });
             },
-          )
+          ),
         ],
       ),
       body: Padding(
@@ -45,16 +53,14 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 16.h),
             // Search bar
             TextField(
-              onChanged: (value) {
-                // Implement search functionality here
-              },
+              onChanged: (value) {},
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Search your notes...',
                 hintStyle: TextStyle(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
-                fillColor: const Color(0xFF1F1F1F), // Darker background for search bar
+                fillColor: const Color(0xFF1F1F1F),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.r),
                   borderSide: BorderSide.none,
@@ -67,9 +73,7 @@ class HomeScreen extends StatelessWidget {
               child: Obx(() {
                 if (notesController.isLoading.value) {
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
+                    child: CircularProgressIndicator(color: Colors.white),
                   );
                 } else if (notesController.notes.isEmpty) {
                   return Center(
@@ -84,12 +88,15 @@ class HomeScreen extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16.w,
                       mainAxisSpacing: 16.h,
-                      childAspectRatio: 0.75, // Adjust as needed
+                      childAspectRatio: 0.75,
                     ),
                     itemCount: notesController.notes.length,
                     itemBuilder: (context, index) {
                       final note = notesController.notes[index];
-                      return NoteCard(note: note, notesController: notesController);
+                      return NoteCard(
+                        note: note,
+                        notesController: notesController,
+                      );
                     },
                   );
                 }
@@ -100,18 +107,11 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the Add Note screen
-          //  Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddNoteScreen()));
-          GoRouter.of(context).push('/add-note'); // Use GoRouter
+          GoRouter.of(context).push('/add-note');
         },
-        backgroundColor:
-            const Color(0xFF6200EE), // Purple accent color, same as the image
+        backgroundColor: const Color(0xFF6200EE),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 }
-
-
-
-
